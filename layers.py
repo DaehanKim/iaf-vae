@@ -66,10 +66,10 @@ class IAFLayer(nn.Module):
 
         if downsample:
             stride, padding, filter_size = 2, 1, 4
-            self.down_conv_b = wn(nn.ConvTranspose2d(args.h_size + args.z_size, args.h_size, 4, 2, 1))
+            self.down_conv_b = wn(nn.ConvTranspose2d(args.h_size + args.z_size, args.h_size, filter_size, stride, padding))
         else:
             stride, padding, filter_size = 1, 1, 3
-            self.down_conv_b = wn(nn.Conv2d(args.h_size + args.z_size, args.h_size, 3, 1, 1))
+            self.down_conv_b = wn(nn.Conv2d(args.h_size + args.z_size, args.h_size, filter_size, stride, padding))
 
         # create modules for UP pass: 
         self.up_conv_a = wn(nn.Conv2d(n_in, n_out, filter_size, stride, padding))
@@ -107,7 +107,7 @@ class IAFLayer(nn.Module):
             z = prior.rsample()
             kl = kl_obj = torch.zeros(input.size(0)).to(input.device)
         else:
-            posterior = D.Normal(rz_mean + self.qz_mean, torch.exp(rz_logsd + self.qz_logsd))
+            posterior = D.Normal(rz_mean + self.qz_mean, torch.exp(2*(rz_logsd + self.qz_logsd)))
             
             z = posterior.rsample()
             logqs = posterior.log_prob(z) 
@@ -119,7 +119,6 @@ class IAFLayer(nn.Module):
                 z = (z - arw_mean) / torch.exp(arw_logsd)
             
                 # the density at the new point is the old one + determinant of transformation
-                logq = logqs
                 logqs += arw_logsd
 
             logps = prior.log_prob(z) 

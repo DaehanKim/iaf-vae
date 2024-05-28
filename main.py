@@ -149,12 +149,12 @@ if __name__ == '__main__':
     # create datasets / dataloaders
     scale_inv = lambda x : x + 0.5
     ds_transforms = transforms.Compose([transforms.ToTensor(), lambda x : x - 0.5])
-    kwargs = {'num_workers':1, 'pin_memory':True, 'drop_last':True}
+    kwargs = {'num_workers':16, 'pin_memory':True, 'drop_last':True}
 
-    train_loader = torch.utils.data.DataLoader(datasets.CIFAR10('../cl-pytorch/data', train=True, 
+    train_loader = torch.utils.data.DataLoader(datasets.CIFAR10('data/cifar10', train=True, 
         download=True, transform=ds_transforms), batch_size=args.batch_size, shuffle=True, **kwargs)
 
-    test_loader  = torch.utils.data.DataLoader(datasets.CIFAR10('../cl-pytorch/data', train=False, 
+    test_loader  = torch.utils.data.DataLoader(datasets.CIFAR10('data/cifar10', train=False, 
         download=True, transform=ds_transforms), batch_size=args.batch_size, shuffle=True, **kwargs)
 
     # spawn writer
